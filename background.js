@@ -1,9 +1,6 @@
 const cron = require('node-cron');
 const { admin, db} = require('./firebase');
-const { StorageSharedKeyCredential} = require('@azure/storage-blob');
 const { drive } = require('./Gdrive');
-const accountName = process.env.AZURE_ACCOUNT_NAME;
-const accountKey = process.env.AZURE_ACCOUNT_KEY;
 
 async function deleteFile(file_id){
     console.log(file_id);
@@ -30,15 +27,12 @@ const cleanUpOldChats = async()=>{
             const batch = db.batch();
             for(const doc of snapShot.docs){
                 const data = doc.data();
-                if(data.type!=='text') await deleteFile(data.content);  //delete file from gdrive
+                if(data.type!=='text') await deleteFile(data.content);
                 batch.delete(doc.ref);
             }
             await batch.commit();
             console.log('Database is clean');
         }
-        //refresh token after 1 hr
-            // io_.emit('init activeUsers',{activeUsers, profile});
-            // console.log('sas tokens refreshed...');
 
     }catch(err){
         console.error('Error cleaning database', err);
